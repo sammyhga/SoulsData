@@ -12,9 +12,10 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { Download, Loader2, RefreshCw, Search } from "lucide-react";
+import { Download, Loader2, RefreshCw, Search, Trash2 } from "lucide-react";
 import { format, parseISO } from "date-fns";
 import { toast } from "sonner";
+import { supabase } from "@/lib/supabase"; // Adjust path if needed
 
 export function AdminDashboard() {
   const { entries, loading, error, refreshData } = useData();
@@ -36,15 +37,25 @@ export function AdminDashboard() {
     try {
       await refreshData();
       toast.success("Data refreshed successfully");
-    } catch (error) {
+    } catch {
       toast.error("Failed to refresh data");
     } finally {
       setIsRefreshing(false);
     }
   };
 
+  const deleteEntry = async (id: string) => {
+    const { error } = await supabase.from("soul_entries").delete().eq("id", id);
+    if (error) {
+      toast.error("Failed to delete entry.");
+      console.error(error);
+    } else {
+      toast.success("Entry deleted.");
+      refreshData();
+    }
+  };
+
   const exportToCSV = () => {
-    // Define CSV headers
     const headers = [
       "Soul Winner",
       "Date",
@@ -56,9 +67,8 @@ export function AdminDashboard() {
       "Created At",
     ];
 
-    // Convert entries to CSV rows
     const csvRows = [
-      headers.join(","), // Header row
+      headers.join(","),
       ...filteredEntries.map((entry) => {
         return [
           `"${entry.soulWinner}"`,
@@ -73,28 +83,22 @@ export function AdminDashboard() {
       }),
     ];
 
-    // Combine rows into a single CSV string
     const csvString = csvRows.join("\n");
-
-    // Create a Blob and download link
     const blob = new Blob([csvString], { type: "text/csv;charset=utf-8;" });
     const url = URL.createObjectURL(blob);
     const link = document.createElement("a");
-    link.setAttribute("href", url);
+    link.href = url;
     link.setAttribute(
       "download",
       `soul_entries_${format(new Date(), "yyyy-MM-dd")}.csv`
     );
-    link.style.visibility = "hidden";
-    document.body.appendChild(link);
     link.click();
-    document.body.removeChild(link);
   };
 
   const formatDate = (dateString: string) => {
     try {
       return format(parseISO(dateString), "PPP");
-    } catch (error) {
+    } catch {
       return dateString;
     }
   };
@@ -134,9 +138,7 @@ export function AdminDashboard() {
   return (
     <div className="bg-white rounded-xl shadow-lg p-6 w-300">
       <div className="flex justify-between items-center mb-6">
-        <h2 className="text-xl font-semibold text-gray-700">
-          Soul Entries Dashboard
-        </h2>
+        <h2 className="text-xl font-semibold text-gray-700">Souls Dashboard</h2>
         <div className="flex gap-4">
           <div className="relative">
             <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
@@ -173,7 +175,7 @@ export function AdminDashboard() {
             : "No entries match your search criteria."}
         </div>
       ) : (
-        <div className="rounded-md border">
+        <div className="rounded-md border overflow-auto">
           <Table>
             <TableHeader>
               <TableRow>
@@ -184,6 +186,7 @@ export function AdminDashboard() {
                 <TableHead>Residence</TableHead>
                 <TableHead>Phone Number</TableHead>
                 <TableHead>On WhatsApp</TableHead>
+                <TableHead>Actions</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -198,6 +201,12 @@ export function AdminDashboard() {
                   <TableCell>{entry.residence}</TableCell>
                   <TableCell>{entry.phoneNumber}</TableCell>
                   <TableCell>{entry.onWhatsapp}</TableCell>
+                  <TableCell>
+                    <Trash2
+                      className="w-4 h-4 cursor-pointer"
+                      onClick={() => deleteEntry(entry.id)}
+                    />
+                  </TableCell>
                 </TableRow>
               ))}
             </TableBody>

@@ -12,13 +12,13 @@ export default function Home() {
   return (
     <DataProvider>
       <main className="flex min-h-screen flex-col p-4 md:p-10 bg-gradient-to-b from-white to-gray-100">
-        <div className="w-auto mb-10">
+        <div className="w-auto mb-6">
           <LoginButton isLoggedIn={isLoggedIn} setIsLoggedIn={setIsLoggedIn} />
         </div>
         <div className="max-w-6xl mx-auto ">
           <div className="w-full flex justify-between items-center mb-8">
-            <h1 className="text-3xl md:text-4xl font-bold text-gray-800">
-              Blantyre Branch Souls Entry
+            <h1 className="text-3xl md:text-4xl font-bold text-gray-800 ">
+              Blantyre Branch Souls
             </h1>
           </div>
 

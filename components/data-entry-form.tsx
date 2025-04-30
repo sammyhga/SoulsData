@@ -213,7 +213,7 @@ export function DataEntryForm() {
       {isSuccess && (
         <div className="absolute inset-0 bg-white/80 flex items-center justify-center z-10 rounded-lg">
           <div className="text-center">
-            <CheckCircle className="mx-auto h-16 w-16 text-green-500" />
+            <CheckCircle className="mx-auto h-16 w-16 text-blue-500" />
             <h3 className="mt-2 text-lg font-medium text-gray-900">
               Submission Successful!
             </h3>
@@ -305,13 +305,7 @@ export function DataEntryForm() {
           <div className="flex items-center space-x-2">
             <RadioGroupItem value="encouraged" id="encouraged" />
             <Label htmlFor="encouraged" className="font-normal">
-              Encouraged
-            </Label>
-          </div>
-          <div className="flex items-center space-x-2">
-            <RadioGroupItem value="invited" id="invited" />
-            <Label htmlFor="invited" className="font-normal">
-              Invited to Church
+              Encouraged, invited to church & accepted
             </Label>
           </div>
         </RadioGroup>
