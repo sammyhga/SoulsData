@@ -3,7 +3,6 @@
 import * as React from "react";
 
 import { cn } from "@/lib/utils";
-import { Separator } from "@/components/ui/separator";
 
 function Table({ className, ...props }: React.ComponentProps<"table">) {
   return (
