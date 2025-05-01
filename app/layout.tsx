@@ -8,8 +8,8 @@ import { Toaster } from "@/components/ui/sonner";
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: "Soul Winner Data Entry System",
-  description: "Interactive data entry system for soul winning records",
+  title: "Souls Data Entry System",
+  description: "Interactive data entry system for Blantyre Branch",
 };
 
 export default function RootLayout({
