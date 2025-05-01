@@ -12,7 +12,8 @@ export default function Home() {
   return (
     <DataProvider>
       <main className="flex min-h-screen flex-col p-4 md:p-10 bg-gradient-to-b from-white to-gray-100">
-        <div className="w-auto mb-6">
+        <div className="flex w-auto mb-6 justify-between">
+          <div></div>
           <LoginButton isLoggedIn={isLoggedIn} setIsLoggedIn={setIsLoggedIn} />
         </div>
         <div className="max-w-6xl mx-auto ">

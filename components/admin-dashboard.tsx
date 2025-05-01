@@ -15,12 +15,14 @@ import {
 import { Download, Loader2, RefreshCw, Search, Trash2 } from "lucide-react";
 import { format, parseISO } from "date-fns";
 import { toast } from "sonner";
-import { supabase } from "@/lib/supabase"; // Adjust path if needed
+import { supabase } from "@/lib/supabase";
 
 export function AdminDashboard() {
   const { entries, loading, error, refreshData } = useData();
   const [searchTerm, setSearchTerm] = useState("");
   const [isRefreshing, setIsRefreshing] = useState(false);
+  const [currentPage, setCurrentPage] = useState(1);
+  const entriesPerPage = 10;
 
   const filteredEntries = entries.filter((entry) => {
     const searchLower = searchTerm.toLowerCase();
@@ -31,6 +33,12 @@ export function AdminDashboard() {
       entry.category.toLowerCase().includes(searchLower)
     );
   });
+
+  const paginatedEntries = filteredEntries.slice(
+    (currentPage - 1) * entriesPerPage,
+    currentPage * entriesPerPage
+  );
+  const totalPages = Math.ceil(filteredEntries.length / entriesPerPage);
 
   const handleRefresh = async () => {
     setIsRefreshing(true);
@@ -147,7 +155,10 @@ export function AdminDashboard() {
               placeholder="Search entries..."
               className="pl-8 w-[250px]"
               value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
+              onChange={(e) => {
+                setSearchTerm(e.target.value);
+                setCurrentPage(1); // Reset pagination on search
+              }}
             />
           </div>
           <Button
@@ -175,43 +186,66 @@ export function AdminDashboard() {
             : "No entries match your search criteria."}
         </div>
       ) : (
-        <div className="rounded-md border overflow-auto">
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Soul Winner</TableHead>
-                <TableHead>Date</TableHead>
-                <TableHead>Category</TableHead>
-                <TableHead>Name of Soul</TableHead>
-                <TableHead>Residence</TableHead>
-                <TableHead>Phone Number</TableHead>
-                <TableHead>On WhatsApp</TableHead>
-                <TableHead>Actions</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {filteredEntries.map((entry) => (
-                <TableRow key={entry.id}>
-                  <TableCell className="font-medium">
-                    {entry.soulWinner}
-                  </TableCell>
-                  <TableCell>{formatDate(entry.date)}</TableCell>
-                  <TableCell>{entry.category}</TableCell>
-                  <TableCell>{entry.nameOfSoul}</TableCell>
-                  <TableCell>{entry.residence}</TableCell>
-                  <TableCell>{entry.phoneNumber}</TableCell>
-                  <TableCell>{entry.onWhatsapp}</TableCell>
-                  <TableCell>
-                    <Trash2
-                      className="w-4 h-4 cursor-pointer"
-                      onClick={() => deleteEntry(entry.id)}
-                    />
-                  </TableCell>
+        <>
+          <div className="rounded-md border overflow-auto">
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Soul Winner</TableHead>
+                  <TableHead>Date</TableHead>
+                  <TableHead>Category</TableHead>
+                  <TableHead>Name of Soul</TableHead>
+                  <TableHead>Residence</TableHead>
+                  <TableHead>Phone Number</TableHead>
+                  <TableHead>On WhatsApp</TableHead>
+                  <TableHead>Actions</TableHead>
                 </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-        </div>
+              </TableHeader>
+              <TableBody>
+                {paginatedEntries.map((entry) => (
+                  <TableRow key={entry.id}>
+                    <TableCell className="font-medium">
+                      {entry.soulWinner}
+                    </TableCell>
+                    <TableCell>{formatDate(entry.date)}</TableCell>
+                    <TableCell>{entry.category}</TableCell>
+                    <TableCell>{entry.nameOfSoul}</TableCell>
+                    <TableCell>{entry.residence}</TableCell>
+                    <TableCell>{entry.phoneNumber}</TableCell>
+                    <TableCell>{entry.onWhatsapp}</TableCell>
+                    <TableCell>
+                      <Trash2
+                        className="w-4 h-4 cursor-pointer"
+                        onClick={() => deleteEntry(entry.id)}
+                      />
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </div>
+
+          {/* Pagination Controls */}
+          <div className="flex justify-center items-center gap-4 mt-4 cursor-pointer">
+            <Button
+              onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
+              disabled={currentPage === 1}
+            >
+              Previous
+            </Button>
+            <span>
+              Page {currentPage} of {totalPages}
+            </span>
+            <Button
+              onClick={() =>
+                setCurrentPage((prev) => Math.min(prev + 1, totalPages))
+              }
+              disabled={currentPage === totalPages}
+            >
+              Next
+            </Button>
+          </div>
+        </>
       )}
     </div>
   );
