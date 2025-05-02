@@ -180,9 +180,9 @@ export function DataEntryForm() {
 
       if (success) {
         setIsSuccess(true);
-        toast.success("Success!", {
-          description: "Data has been successfully submitted.",
-        });
+        // toast.success("Success!", {
+        //   description: "Data has been successfully submitted.",
+        // });
 
         // Reset form after successful submission
         setTimeout(() => {

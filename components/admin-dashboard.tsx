@@ -143,110 +143,140 @@ export function AdminDashboard() {
     );
   }
 
+  // Dashboard stats
+  const totalWon = entries.filter(
+    (entry) => entry.category.toLowerCase() === "won"
+  ).length;
+
+  const totalRecommit = entries.filter(
+    (entry) => entry.category.toLowerCase() === "recommitted"
+  ).length;
+
   return (
-    <div className="bg-white rounded-xl shadow-lg p-6 w-300">
-      <div className="flex justify-between items-center mb-6">
-        <h2 className="text-xl font-semibold text-gray-700">Souls Dashboard</h2>
-        <div className="flex gap-4">
-          <div className="relative">
-            <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
-            <Input
-              type="search"
-              placeholder="Search entries..."
-              className="pl-8 w-[250px]"
-              value={searchTerm}
-              onChange={(e) => {
-                setSearchTerm(e.target.value);
-                setCurrentPage(1); // Reset pagination on search
-              }}
-            />
-          </div>
-          <Button
-            onClick={handleRefresh}
-            variant="outline"
-            disabled={isRefreshing}
-          >
-            {isRefreshing ? (
-              <Loader2 className="h-4 w-4 animate-spin" />
-            ) : (
-              <RefreshCw className="h-4 w-4" />
-            )}
-          </Button>
-          <Button onClick={exportToCSV} disabled={filteredEntries.length === 0}>
-            <Download className="mr-2 h-4 w-4" />
-            Export CSV
-          </Button>
+    <>
+      {/* Summary Dashboard */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
+        <div className="bg-green-100 border border-green-300 rounded-lg p-5 shadow-sm">
+          <h3 className="text-sm font-medium text-green-800 mb-1">Souls Won</h3>
+          <p className="text-3xl font-bold text-green-900">{totalWon}</p>
+        </div>
+        <div className="bg-blue-100 border border-blue-300 rounded-lg p-5 shadow-sm">
+          <h3 className="text-sm font-medium text-blue-800 mb-1">
+            Recommitted
+          </h3>
+          <p className="text-3xl font-bold text-blue-900">{totalRecommit}</p>
         </div>
       </div>
 
-      {filteredEntries.length === 0 ? (
-        <div className="text-center py-10 text-muted-foreground">
-          {entries.length === 0
-            ? "No entries have been recorded yet."
-            : "No entries match your search criteria."}
+      <div className="bg-white rounded-xl shadow-lg p-6 w-300">
+        <div className="flex justify-between items-center mb-6">
+          <h2 className="text-xl font-semibold text-gray-700">
+            Souls Dashboard
+          </h2>
+          <div className="flex gap-4">
+            <div className="relative">
+              <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
+              <Input
+                type="search"
+                placeholder="Search entries..."
+                className="pl-8 w-[250px]"
+                value={searchTerm}
+                onChange={(e) => {
+                  setSearchTerm(e.target.value);
+                  setCurrentPage(1); // Reset pagination on search
+                }}
+              />
+            </div>
+            <Button
+              onClick={handleRefresh}
+              variant="outline"
+              disabled={isRefreshing}
+            >
+              {isRefreshing ? (
+                <Loader2 className="h-4 w-4 animate-spin" />
+              ) : (
+                <RefreshCw className="h-4 w-4" />
+              )}
+            </Button>
+            <Button
+              onClick={exportToCSV}
+              disabled={filteredEntries.length === 0}
+            >
+              <Download className="mr-2 h-4 w-4" />
+              Export CSV
+            </Button>
+          </div>
         </div>
-      ) : (
-        <>
-          <div className="rounded-md border overflow-auto">
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Soul Winner</TableHead>
-                  <TableHead>Date</TableHead>
-                  <TableHead>Category</TableHead>
-                  <TableHead>Name of Soul</TableHead>
-                  <TableHead>Residence</TableHead>
-                  <TableHead>Phone Number</TableHead>
-                  <TableHead>On WhatsApp</TableHead>
-                  <TableHead>Actions</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {paginatedEntries.map((entry) => (
-                  <TableRow key={entry.id}>
-                    <TableCell className="font-medium">
-                      {entry.soulWinner}
-                    </TableCell>
-                    <TableCell>{formatDate(entry.date)}</TableCell>
-                    <TableCell>{entry.category}</TableCell>
-                    <TableCell>{entry.nameOfSoul}</TableCell>
-                    <TableCell>{entry.residence}</TableCell>
-                    <TableCell>{entry.phoneNumber}</TableCell>
-                    <TableCell>{entry.onWhatsapp}</TableCell>
-                    <TableCell>
-                      <Trash2
-                        className="w-4 h-4 cursor-pointer"
-                        onClick={() => deleteEntry(entry.id)}
-                      />
-                    </TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          </div>
 
-          {/* Pagination Controls */}
-          <div className="flex justify-center items-center gap-4 mt-4 cursor-pointer">
-            <Button
-              onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
-              disabled={currentPage === 1}
-            >
-              Previous
-            </Button>
-            <span>
-              Page {currentPage} of {totalPages}
-            </span>
-            <Button
-              onClick={() =>
-                setCurrentPage((prev) => Math.min(prev + 1, totalPages))
-              }
-              disabled={currentPage === totalPages}
-            >
-              Next
-            </Button>
+        {filteredEntries.length === 0 ? (
+          <div className="text-center py-10 text-muted-foreground">
+            {entries.length === 0
+              ? "No entries have been recorded yet."
+              : "No entries match your search criteria."}
           </div>
-        </>
-      )}
-    </div>
+        ) : (
+          <>
+            <div className="rounded-md border overflow-auto">
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Soul Winner</TableHead>
+                    <TableHead>Date</TableHead>
+                    <TableHead>Category</TableHead>
+                    <TableHead>Name of Soul</TableHead>
+                    <TableHead>Residence</TableHead>
+                    <TableHead>Phone Number</TableHead>
+                    <TableHead>On WhatsApp</TableHead>
+                    <TableHead>Actions</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {paginatedEntries.map((entry) => (
+                    <TableRow key={entry.id}>
+                      <TableCell className="font-medium">
+                        {entry.soulWinner}
+                      </TableCell>
+                      <TableCell>{formatDate(entry.date)}</TableCell>
+                      <TableCell>{entry.category}</TableCell>
+                      <TableCell>{entry.nameOfSoul}</TableCell>
+                      <TableCell>{entry.residence}</TableCell>
+                      <TableCell>{entry.phoneNumber}</TableCell>
+                      <TableCell>{entry.onWhatsapp}</TableCell>
+                      <TableCell>
+                        <Trash2
+                          className="w-4 h-4 cursor-pointer"
+                          onClick={() => deleteEntry(entry.id)}
+                        />
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </div>
+
+            {/* Pagination Controls */}
+            <div className="flex justify-center items-center gap-4 mt-4 cursor-pointer">
+              <Button
+                onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
+                disabled={currentPage === 1}
+              >
+                Previous
+              </Button>
+              <span>
+                Page {currentPage} of {totalPages}
+              </span>
+              <Button
+                onClick={() =>
+                  setCurrentPage((prev) => Math.min(prev + 1, totalPages))
+                }
+                disabled={currentPage === totalPages}
+              >
+                Next
+              </Button>
+            </div>
+          </>
+        )}
+      </div>
+    </>
   );
 }
