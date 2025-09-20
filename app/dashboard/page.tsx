@@ -6,7 +6,7 @@ import { DataProvider } from "@/components/data-context";
 export default function Dashboard() {
   return (
     <DataProvider>
-      <Dashboard />
+      <AdminDashboard /> {/* ✅ render your actual dashboard component */}
     </DataProvider>
   );
 }
