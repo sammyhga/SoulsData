@@ -13,9 +13,11 @@ import { toast } from "sonner";
 export interface SoulEntry {
   id: string;
   soulWinner: string;
+  zone: string; // added zone
   date: string;
   category: string;
   nameOfSoul: string;
+  age: string; // added soul_age
   residence: string;
   phoneNumber: string;
   onWhatsapp: string;
@@ -37,9 +39,11 @@ function mapDatabaseRowToSoulEntry(row: SoulEntryRow): SoulEntry {
   return {
     id: row.id,
     soulWinner: row.soul_winner,
+    zone: row.zone, // map zone
     date: row.date,
     category: row.category,
     nameOfSoul: row.name_of_soul,
+    age: row.age, // map soul_age
     residence: row.residence,
     phoneNumber: row.phone_number,
     onWhatsapp: row.on_whatsapp,
@@ -53,9 +57,11 @@ function mapSoulEntryToDatabaseRow(
 ): Omit<SoulEntryRow, "id" | "created_at"> {
   return {
     soul_winner: entry.soulWinner,
+    zone: entry.zone, // map zone
     date: entry.date,
     category: entry.category,
     name_of_soul: entry.nameOfSoul,
+    age: entry.age, // map soul_age
     residence: entry.residence,
     phone_number: entry.phoneNumber,
     on_whatsapp: entry.onWhatsapp,
@@ -110,6 +116,7 @@ export function DataProvider({ children }: { children: ReactNode }) {
       const dbEntry = mapSoulEntryToDatabaseRow(entry);
 
       // Insert into Supabase
+      console.log("DB Insert payload:", dbEntry);
       const { data, error } = await supabase
         .from("soul_entries")
         .insert([dbEntry])

@@ -1,7 +1,6 @@
 "use client";
 
 import type React from "react";
-
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -21,13 +20,15 @@ import { useData } from "@/components/data-context";
 import { supabase } from "@/lib/supabase";
 
 export function DataEntryForm() {
-  const { addEntry, entries } = useData();
+  const { addEntry } = useData();
   const [date, setDate] = useState<Date>();
   const [formData, setFormData] = useState({
     soulWinner: "",
+    zone: "",
     category: "",
     nameOfSoul: "",
     residence: "",
+    age: "",
     phoneNumber: "",
     onWhatsapp: "",
   });
@@ -38,60 +39,61 @@ export function DataEntryForm() {
   const validateForm = () => {
     const newErrors: Record<string, string> = {};
 
-    // Soul winner validation (alphabetic characters only)
     if (!formData.soulWinner) {
       newErrors.soulWinner = "Soul winner name is required";
     } else if (!/^[A-Za-z\s]+$/.test(formData.soulWinner)) {
       newErrors.soulWinner = "Only alphabetic characters are allowed";
     }
 
-    // Date validation
     if (!date) {
       newErrors.date = "Date is required";
     }
 
-    // Category validation
     if (!formData.category) {
       newErrors.category = "Please select a category";
     }
 
-    // Name of soul validation (alphabetic characters only)
     if (!formData.nameOfSoul) {
       newErrors.nameOfSoul = "Name of soul is required";
     } else if (!/^[A-Za-z\s]+$/.test(formData.nameOfSoul)) {
       newErrors.nameOfSoul = "Only alphabetic characters are allowed";
     }
 
-    // Residence validation
     if (!formData.residence) {
       newErrors.residence = "Residence is required";
     }
 
-    // Phone number validation (10 digits only)
     if (!formData.phoneNumber) {
       newErrors.phoneNumber = "Phone number is required";
     } else if (!/^\d{10}$/.test(formData.phoneNumber)) {
       newErrors.phoneNumber = "Phone number must be exactly 10 digits";
     }
 
-    // WhatsApp validation
     if (!formData.onWhatsapp) {
       newErrors.onWhatsapp = "Please select an option";
+    }
+
+    if (!formData.zone) {
+      newErrors.zone = "Please select a zone";
+    }
+
+    if (!formData.age) {
+      newErrors.age = "Age is required";
+    } else if (!/^\d+$/.test(formData.age)) {
+      newErrors.age = "Age must be a number";
     }
 
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleInputChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
+  ) => {
     const { name, value } = e.target;
 
-    // For phone number, only allow digits
-    if (name === "phoneNumber" && !/^\d*$/.test(value)) {
-      return;
-    }
+    if (name === "phoneNumber" && !/^\d*$/.test(value)) return;
 
-    // For name fields, only allow alphabetic characters
     if (
       (name === "soulWinner" || name === "nameOfSoul") &&
       value !== "" &&
@@ -102,7 +104,6 @@ export function DataEntryForm() {
 
     setFormData((prev) => ({ ...prev, [name]: value }));
 
-    // Clear error when user types
     if (errors[name]) {
       setErrors((prev) => ({ ...prev, [name]: "" }));
     }
@@ -110,8 +111,6 @@ export function DataEntryForm() {
 
   const handleRadioChange = (name: string, value: string) => {
     setFormData((prev) => ({ ...prev, [name]: value }));
-
-    // Clear error when user selects an option
     if (errors[name]) {
       setErrors((prev) => ({ ...prev, [name]: "" }));
     }
@@ -125,9 +124,7 @@ export function DataEntryForm() {
         .ilike("name_of_soul", nameOfSoul)
         .limit(1);
 
-      if (error) {
-        throw error;
-      }
+      if (error) throw error;
 
       return data && data.length > 0;
     } catch (err) {
@@ -149,7 +146,6 @@ export function DataEntryForm() {
     setIsSubmitting(true);
 
     try {
-      // Check for duplicate soul name in Supabase
       const isDuplicate = await checkForDuplicate(formData.nameOfSoul);
 
       if (isDuplicate) {
@@ -164,32 +160,30 @@ export function DataEntryForm() {
         return;
       }
 
-      // Create the entry object
       const entryData = {
         soulWinner: formData.soulWinner,
+        zone: formData.zone,
         date: date?.toISOString() || new Date().toISOString(),
         category: formData.category,
         nameOfSoul: formData.nameOfSoul,
+        age: formData.age,
         residence: formData.residence,
         phoneNumber: formData.phoneNumber,
         onWhatsapp: formData.onWhatsapp,
       };
-
-      // Add the entry to Supabase via context
+      console.log("Submitting entry data:", entryData);
       const success = await addEntry(entryData);
 
       if (success) {
         setIsSuccess(true);
-        // toast.success("Success!", {
-        //   description: "Data has been successfully submitted.",
-        // });
 
-        // Reset form after successful submission
         setTimeout(() => {
           setFormData({
             soulWinner: "",
+            zone: "",
             category: "",
             nameOfSoul: "",
+            age: "",
             residence: "",
             phoneNumber: "",
             onWhatsapp: "",
@@ -224,8 +218,9 @@ export function DataEntryForm() {
         </div>
       )}
 
+      {/* Soul Winner */}
       <div className="space-y-2">
-        <Label htmlFor="soulWinner" className="text-sm font-medium">
+        <Label htmlFor="soulWinner">
           Soul Winner <span className="text-red-500">*</span>
         </Label>
         <Input
@@ -234,18 +229,40 @@ export function DataEntryForm() {
           value={formData.soulWinner}
           onChange={handleInputChange}
           placeholder="Enter soul winner's name"
-          className={cn(
-            "transition-all",
-            errors.soulWinner ? "border-red-500 focus-visible:ring-red-500" : ""
-          )}
+          className={cn(errors.soulWinner && "border-red-500")}
         />
         {errors.soulWinner && (
-          <p className="text-red-500 text-xs mt-1">{errors.soulWinner}</p>
+          <p className="text-red-500 text-xs">{errors.soulWinner}</p>
         )}
       </div>
 
+      {/* Zone */}
       <div className="space-y-2">
-        <Label className="text-sm font-medium">
+        <Label htmlFor="zone">
+          Zone <span className="text-red-500">*</span>
+        </Label>
+        <select
+          id="zone"
+          name="zone"
+          value={formData.zone}
+          onChange={handleInputChange}
+          className={cn(
+            "w-full border rounded-md px-3 py-2 text-sm",
+            errors.zone ? "border-red-500 ring-red-500" : "border-gray-300"
+          )}
+        >
+          <option value="">Select Zone</option>
+          <option value="Zone 1">Zone 1</option>
+          <option value="Zone 2">Zone 2</option>
+          <option value="Zone 4">Zone 4</option>
+          <option value="Other">Other</option>
+        </select>
+        {errors.zone && <p className="text-red-500 text-xs">{errors.zone}</p>}
+      </div>
+
+      {/* Date */}
+      <div className="space-y-2">
+        <Label>
           Date <span className="text-red-500">*</span>
         </Label>
         <Popover>
@@ -255,67 +272,31 @@ export function DataEntryForm() {
               className={cn(
                 "w-full justify-start text-left font-normal",
                 !date && "text-muted-foreground",
-                errors.date ? "border-red-500" : ""
+                errors.date && "border-red-500"
               )}
             >
               <CalendarIcon className="mr-2 h-4 w-4" />
-              {date ? format(date, "PPP") : <span>Select a date</span>}
+              {date ? format(date, "PPP") : "Select a date"}
             </Button>
           </PopoverTrigger>
           <PopoverContent className="w-auto p-0">
             <Calendar
               mode="single"
               selected={date}
-              onSelect={(date) => {
-                setDate(date);
-                if (errors.date) {
-                  setErrors((prev) => ({ ...prev, date: "" }));
-                }
+              onSelect={(d) => {
+                setDate(d);
+                if (errors.date) setErrors((prev) => ({ ...prev, date: "" }));
               }}
               initialFocus
             />
           </PopoverContent>
         </Popover>
-        {errors.date && (
-          <p className="text-red-500 text-xs mt-1">{errors.date}</p>
-        )}
+        {errors.date && <p className="text-red-500 text-xs">{errors.date}</p>}
       </div>
 
+      {/* Name of Soul */}
       <div className="space-y-2">
-        <Label className="text-sm font-medium">
-          Category <span className="text-red-500">*</span>
-        </Label>
-        <RadioGroup
-          value={formData.category}
-          onValueChange={(value) => handleRadioChange("category", value)}
-          className="flex flex-col space-y-2"
-        >
-          <div className="flex items-center space-x-2">
-            <RadioGroupItem value="recommitted" id="recommitted" />
-            <Label htmlFor="recommitted" className="font-normal">
-              Recommitted to Christ
-            </Label>
-          </div>
-          <div className="flex items-center space-x-2">
-            <RadioGroupItem value="won" id="won" />
-            <Label htmlFor="won" className="font-normal">
-              Won to Christ
-            </Label>
-          </div>
-          <div className="flex items-center space-x-2">
-            <RadioGroupItem value="encouraged" id="encouraged" />
-            <Label htmlFor="encouraged" className="font-normal">
-              Encouraged, invited to church & accepted
-            </Label>
-          </div>
-        </RadioGroup>
-        {errors.category && (
-          <p className="text-red-500 text-xs mt-1">{errors.category}</p>
-        )}
-      </div>
-
-      <div className="space-y-2">
-        <Label htmlFor="nameOfSoul" className="text-sm font-medium">
+        <Label htmlFor="nameOfSoul">
           Name of Soul <span className="text-red-500">*</span>
         </Label>
         <Input
@@ -324,17 +305,64 @@ export function DataEntryForm() {
           value={formData.nameOfSoul}
           onChange={handleInputChange}
           placeholder="Enter name of soul"
-          className={cn(
-            errors.nameOfSoul ? "border-red-500 focus-visible:ring-red-500" : ""
-          )}
+          className={cn(errors.nameOfSoul && "border-red-500")}
         />
         {errors.nameOfSoul && (
-          <p className="text-red-500 text-xs mt-1">{errors.nameOfSoul}</p>
+          <p className="text-red-500 text-xs">{errors.nameOfSoul}</p>
         )}
       </div>
 
+      {/* Category */}
       <div className="space-y-2">
-        <Label htmlFor="residence" className="text-sm font-medium">
+        <Label>
+          Category <span className="text-red-500">*</span>
+        </Label>
+        <RadioGroup
+          value={formData.category}
+          onValueChange={(val) => handleRadioChange("category", val)}
+          className="space-y-2"
+        >
+          <div className="flex items-center space-x-2">
+            <RadioGroupItem value="recommitted" id="recommitted" />
+            <Label htmlFor="recommitted">Recommitted to Christ</Label>
+          </div>
+          <div className="flex items-center space-x-2">
+            <RadioGroupItem value="won" id="won" />
+            <Label htmlFor="won">Won to Christ</Label>
+          </div>
+          <div className="flex items-center space-x-2">
+            <RadioGroupItem value="encouraged" id="encouraged" />
+            <Label htmlFor="encouraged">
+              Encouraged, invited to church & accepted
+            </Label>
+          </div>
+        </RadioGroup>
+        {errors.category && (
+          <p className="text-red-500 text-xs">{errors.category}</p>
+        )}
+      </div>
+
+      {/* Age */}
+      <div className="space-y-2">
+        <Label htmlFor="age">
+          Age <span className="text-red-500">*</span>
+        </Label>
+        <Input
+          id="age"
+          name="age"
+          type="number"
+          min="1"
+          value={formData.age}
+          onChange={handleInputChange}
+          placeholder="Enter age of soul won"
+          className={cn(errors.age && "border-red-500")}
+        />
+        {errors.age && <p className="text-red-500 text-xs">{errors.age}</p>}
+      </div>
+
+      {/* Residence */}
+      <div className="space-y-2">
+        <Label htmlFor="residence">
           Residence <span className="text-red-500">*</span>
         </Label>
         <Input
@@ -343,64 +371,57 @@ export function DataEntryForm() {
           value={formData.residence}
           onChange={handleInputChange}
           placeholder="Enter residence"
-          className={cn(
-            errors.residence ? "border-red-500 focus-visible:ring-red-500" : ""
-          )}
+          className={cn(errors.residence && "border-red-500")}
         />
         {errors.residence && (
-          <p className="text-red-500 text-xs mt-1">{errors.residence}</p>
+          <p className="text-red-500 text-xs">{errors.residence}</p>
         )}
       </div>
 
+      {/* Phone Number */}
       <div className="space-y-2">
-        <Label htmlFor="phoneNumber" className="text-sm font-medium">
+        <Label htmlFor="phoneNumber">
           Phone Number <span className="text-red-500">*</span>
         </Label>
         <Input
           id="phoneNumber"
           name="phoneNumber"
+          maxLength={10}
           value={formData.phoneNumber}
           onChange={handleInputChange}
           placeholder="Enter 10-digit phone number"
-          maxLength={10}
-          className={cn(
-            errors.phoneNumber
-              ? "border-red-500 focus-visible:ring-red-500"
-              : ""
-          )}
+          className={cn(errors.phoneNumber && "border-red-500")}
         />
         {errors.phoneNumber && (
-          <p className="text-red-500 text-xs mt-1">{errors.phoneNumber}</p>
+          <p className="text-red-500 text-xs">{errors.phoneNumber}</p>
         )}
       </div>
 
+      {/* WhatsApp */}
       <div className="space-y-2">
-        <Label className="text-sm font-medium">
+        <Label>
           On WhatsApp <span className="text-red-500">*</span>
         </Label>
         <RadioGroup
           value={formData.onWhatsapp}
-          onValueChange={(value) => handleRadioChange("onWhatsapp", value)}
+          onValueChange={(val) => handleRadioChange("onWhatsapp", val)}
           className="flex space-x-4"
         >
           <div className="flex items-center space-x-2">
             <RadioGroupItem value="yes" id="whatsapp-yes" />
-            <Label htmlFor="whatsapp-yes" className="font-normal">
-              Yes
-            </Label>
+            <Label htmlFor="whatsapp-yes">Yes</Label>
           </div>
           <div className="flex items-center space-x-2">
             <RadioGroupItem value="no" id="whatsapp-no" />
-            <Label htmlFor="whatsapp-no" className="font-normal">
-              No
-            </Label>
+            <Label htmlFor="whatsapp-no">No</Label>
           </div>
         </RadioGroup>
         {errors.onWhatsapp && (
-          <p className="text-red-500 text-xs mt-1">{errors.onWhatsapp}</p>
+          <p className="text-red-500 text-xs">{errors.onWhatsapp}</p>
         )}
       </div>
 
+      {/* Submit Button */}
       <Button type="submit" className="w-full" disabled={isSubmitting}>
         {isSubmitting ? (
           <>

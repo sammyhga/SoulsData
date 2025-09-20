@@ -5,6 +5,7 @@ import { DataEntryForm } from "@/components/data-entry-form";
 import { LoginButton } from "@/components/login-button";
 import { AdminDashboard } from "@/components/admin-dashboard";
 import { DataProvider } from "@/components/data-context";
+import { AnalyticsDashboard } from "@/components/analytics-dashboard";
 
 export default function Home() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);

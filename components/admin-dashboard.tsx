@@ -12,10 +12,18 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { Download, Loader2, RefreshCw, Search, Trash2 } from "lucide-react";
+import {
+  Download,
+  Loader2,
+  RefreshCw,
+  Search,
+  Trash2,
+  BarChart,
+} from "lucide-react";
 import { format, parseISO } from "date-fns";
 import { toast } from "sonner";
 import { supabase } from "@/lib/supabase";
+import Link from "next/link";
 
 export function AdminDashboard() {
   const { entries, loading, error, refreshData } = useData();
@@ -188,8 +196,9 @@ export function AdminDashboard() {
               />
             </div>
             <Button
-              onClick={handleRefresh}
               variant="outline"
+              className="cursor-pointer"
+              onClick={handleRefresh}
               disabled={isRefreshing}
             >
               {isRefreshing ? (
@@ -198,7 +207,15 @@ export function AdminDashboard() {
                 <RefreshCw className="h-4 w-4" />
               )}
             </Button>
+            <Link href="/analytics" passHref>
+              <Button variant="outline" className="cursor-pointer">
+                <BarChart className="mr-2 h-4 w-4" />
+                Analytics
+              </Button>
+            </Link>
             <Button
+              variant="outline"
+              className="cursor-pointer"
               onClick={exportToCSV}
               disabled={filteredEntries.length === 0}
             >

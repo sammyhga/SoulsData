@@ -10,9 +10,11 @@ export const supabase = createClient(supabaseUrl, supabaseAnonKey);
 export type SoulEntryRow = {
   id: string;
   soul_winner: string;
+  zone: string;
   date: string;
   category: string;
   name_of_soul: string;
+  age: string;
   residence: string;
   phone_number: string;
   on_whatsapp: string;
