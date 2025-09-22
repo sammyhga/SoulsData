@@ -239,7 +239,7 @@ export function DataEntryForm() {
       {/* Zone */}
       <div className="space-y-2">
         <Label htmlFor="zone">
-          Zone <span className="text-red-500">*</span>
+          Zone/Campus <span className="text-red-500">*</span>
         </Label>
         <select
           id="zone"
@@ -251,11 +251,19 @@ export function DataEntryForm() {
             errors.zone ? "border-red-500 ring-red-500" : "border-gray-300"
           )}
         >
-          <option value="">Select Zone</option>
+          <option value="">Select Zone/Campus</option>
           <option value="Zone 1">Zone 1</option>
           <option value="Zone 2">Zone 2</option>
+          <option value="Zone 3">Zone 3</option>
           <option value="Zone 4">Zone 4</option>
-          <option value="Other">Other</option>
+          <option value="MUST">MUST</option>
+          <option value="CU">CU</option>
+          <option value="MUBAS">MUBAS</option>
+          <option value="MUST">COM</option>
+          <option value="MCA">MCA</option>
+          <option value="Queens">KCN-Queens</option>
+          <option value="Kameza">KCN-Kameza</option>
+          <option value="Soche">Soche Technical</option>
         </select>
         {errors.zone && <p className="text-red-500 text-xs">{errors.zone}</p>}
       </div>
