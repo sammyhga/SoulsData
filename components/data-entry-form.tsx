@@ -77,11 +77,11 @@ export function DataEntryForm() {
       newErrors.zone = "Please select a zone";
     }
 
-    if (!formData.age) {
-      newErrors.age = "Age is required";
-    } else if (!/^\d+$/.test(formData.age)) {
-      newErrors.age = "Age must be a number";
-    }
+    // if (!formData.age) {
+    //   newErrors.age = "Age is required";
+    // } else if (!/^\d+$/.test(formData.age)) {
+    //   newErrors.age = "Age must be a number";
+    // }
 
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
